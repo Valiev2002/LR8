@@ -1,272 +1,216 @@
 #include <iostream>
-#include <string>
-struct Lab_8
-{
-    double x;
-    double y;
-    double z;
+template <class T>
+struct List_above_Student{
+List_above_Student<T>*previos;
+List_above_Student<T>*next;
+T value;
 };
-std::ostream& operator<< (std::ostream& out, const Lab_8& list_element)
-{
-    out << std::endl;
-    out << "" << list_element.x << " \"" << list_element.y << list_element.z <<"\"" << std::endl;
-    return out;
-}
-bool operator!=(const Lab_8 &left, const Lab_8 &right) {
-    return left.x != right.x;
-}
-template <typename T>
-struct Element//структура для каждогог отдельного элемента
-{
-    Element* le_prev = nullptr;//указатель на предыдущий элемент
-    Element* le_next = nullptr;//указатель на следующий элемент
-    T value{};//значение
+template<class T>
+struct List_of_group{
+    List_above_Student<T>*first;
+    int size;
 };
-template <typename T>
-struct List//главная структура
+template<class T>
+void constructor(List_of_group<T>&list)
 {
-    Element<T>* l_begin;//указаткль на первый элемент
-    Element<T>* l_end;//указатель на последний элемент
-};
-template <typename T>
-void constructor_List(List<T>& l)
-{
-    l.l_begin = nullptr;
-    l.l_end = nullptr;
+    list.size=0;
+    list.first=nullptr;
 }
-template <typename T>
-void destructor_List(List<T>& l)
-{
-    if (l.l_begin == nullptr) {
-        return;
-    }
-    auto *next=l.l_begin;
-    auto *next2=next->le_next;
-    while(next2!=nullptr)
+template<class T>
+void destructor(List_of_group<T>&list){
+    for (int i = 1; i < list.size; i++)
     {
-        delete next;
-        next=next2;
-        next2=next2->le_next;
+        list.first = list.first->next;
+        delete list.first->previos;
     }
-    delete next;
-    l.l_begin =nullptr;
+    delete list.first;
+    list.first = nullptr;
+    list.size = 0;
 }
-template <typename T>
-unsigned int count_of_elements(List<T>& l)
+template<typename T>
+int size(List_of_group<T>& list)
 {
-    Element<T>* current;
-    current = l.l_begin;
-    if (current == nullptr)
-        return 0;
-    else {
-        unsigned int counter = 1;
-        while (current != l.l_end) {
-            counter++;
-            current = current->le_next;
-        }
-        return counter;
-    }
+    return list.size;
 }
-template <typename T>
-void push_begin(List<T>& l, T n)
-{
-    auto* newList = new Element<T>;
-    newList->value = n;
-    if (l.l_begin == nullptr) {
-        l.l_begin = newList;
-        l.l_end = newList;
-        newList->le_next = newList;
-        newList->le_prev = newList;
-    }
-    else {
-        l.l_begin->le_prev = newList;
-        newList->le_next = l.l_begin;
-        l.l_begin = newList;
-        l.l_begin->le_prev = l.l_end;
-    }
-}
-template <typename T>
-void push_back(List<T>& l, T n)
-{
-    auto* newList = new Element<T>;
-    newList->value = n;
-    if (l.l_begin == nullptr) {
-        l.l_begin = newList;
-        l.l_end = newList;
-        newList->le_next = newList;
-        newList->le_prev = newList;
-    }
-    else {
-        l.l_end->le_next = newList;
-        newList->le_prev = l.l_end;
-        l.l_end = newList;
-        l.l_end->le_next = l.l_begin;
-    }
-}
-template <typename T>
-void insert_index(List<T>& l, T n, unsigned int i)
-{
-    unsigned int counter = 0;
-    Element<T>* current;
-    current = l.l_begin;
-    while (counter != i)
+template <class T>
+void push_front(List_of_group<T>&list,T value){
+    auto*ptr = new List_above_Student<T>;
+    ptr->value = value;
+    if (list.first == nullptr)
     {
-        current = current->le_next;
-        ++counter;
-    }
-    auto* newList = new Element<T>;
-    newList->value = n;
-    newList->le_prev = current->le_prev;
-    current->le_prev->le_next = newList;
-    current->le_prev = newList;
-    newList->le_next = current;
-}
-template <typename T>
-T pop_begin(List<T>& l)
-{
-    l.l_end->le_next = l.l_begin->le_next;
-    l.l_begin->le_next->le_prev = l.l_end;
-    T rez = l.l_begin->value;
-    Element<T>* tmp;
-    tmp = l.l_begin->le_next;
-    delete l.l_begin;
-    l.l_begin = tmp;
-    return rez;
-}
-template <typename T>
-T pop_back(List<T>& l)
-{
-    l.l_end->le_prev->le_next = l.l_begin;
-    l.l_begin->le_prev = l.l_end->le_prev;
-    T rez = l.l_end->value;
-    Element<T>* tmp;
-    tmp = l.l_end->le_prev;
-    delete l.l_end;
-    l.l_end = tmp;
-    return rez;
-}
-template <typename T>
-T pop_index(List<T>& l, unsigned int i)
-{
-    unsigned int counter = 0;
-    Element<T>* current;
-    current = l.l_begin;
-    //std::cout << i << std::endl;
-    while (counter != i)
-    {
-        current = current->le_next;
-        //std::cout << counter << "-";
-        ++counter;
-    }
-    T rez = current->value;
-    current->le_prev->le_next = current->le_next;
-    current->le_next->le_prev = current->le_prev;
-    delete current;
-    return rez;
-}
-template <typename T>
-T find_value(List<T>& l, unsigned int i)
-{
-    unsigned int counter = 0;
-    Element<T>* current;
-    current = l.l_begin;
-    while (counter != i)
-    {
-        current = current->le_next;
-        counter++;
-    }
-    return current->value;
-}
-template <typename T>
-unsigned int find_pos(List<T>& l, T n)
-{
-    Element<T>* current;
-    current = l.l_begin;
-    unsigned int i = 0;
-    while (current->value != n) {
-        ++i;
-        current = current->le_next;
-    }
-    return i;
-}
-template <typename T>
-void print(List<T>& l)
-{
-    if (l.l_begin == nullptr)
-    {
-        std::cout << "List is empty" << std::endl;
+        list.first = ptr;
+        ptr->next = ptr;
+        ptr->previos = ptr;
     }
     else
     {
-        Element<T>* current;
-        current = l.l_begin;
-        unsigned int i = 0;
-        std::cout << i << ": " << current->value << std::endl;
-        ++i;
-        while (current != l.l_end) {
-            current = current->le_next;
-            std::cout << i << ": " << current->value << std::endl;
-            ++i;
-        }
+        list.first->previos->next = ptr;
+        ptr->previos = list.first->previos;
+        list.first->previos = ptr;
+        ptr->next = list.first;
+        list.first = ptr;
+    }
+    list.size++;
+}
+template<typename T>
+void push_back(List_of_group<T>&list,T value)
+{
+    auto*ptr = new List_above_Student<T>;
+    ptr->value = value;
+    if (list.first == nullptr)
+    {
+        list.first = ptr;
+        ptr->next = ptr;
+        ptr->previos = ptr;
+    }
+    else
+    {
+        list.first->previos->next = ptr;
+        ptr->previos = list.first->previos;
+        list.first->previos = ptr;
+        ptr->next = list.first;
+    }
+    list.size++;
+}
+template <typename T>
+void insert_index(List_of_group<T>& list, T data, int index)
+{
+    auto* ptr = new List_above_Student<T>;
+    ptr->next = list.first;
+    ptr->value = data;
+    for (int i = 0; i < index; ++i)
+    {
+        ptr->next = ptr->next->next;
+    }
+    ptr->previos = ptr->next->previos;
+    ptr->next->previos = ptr;
+    ptr->previos->next = ptr;
+    list.size++;
+}
+template <typename T>
+void print(List_of_group<T>& list)
+{
+    List_above_Student<T>* a = list.first;
+    for (int i = 0; i < list.size; ++i)
+    {
+        std::cout << a->value << ' ';
+        a = a->next;
     }
 }
-int main()
+template <typename T>
+void insert_pointer
+        (List_of_group<T>& list, T data, List_above_Student<T>* z)
 {
-    List<double> l{};
-    constructor_List(l);
-    destructor_List(l);
-    print(l);
-    push_back(l, 3.5);
-    push_begin(l, 1.0);
-    push_begin(l, 5.5);
-    push_back(l, 32.7);
-    print(l);
-    std::cout << find_pos(l, 32.7) << std::endl;
-    std::cout << find_value(l, static_cast<unsigned int>(3.5)) << std::endl;
-    std::cout << count_of_elements(l) << std::endl;
-    insert_index(l, 10.0, static_cast<unsigned int>(3.5));
-    push_back(l, 256.3);
-    print(l);
-    std::cout << pop_back(l) << std::endl;
-    std::cout << pop_begin(l) << std::endl;
-    print(l);
-    push_back(l, 36.6);
-    push_back(l, 4.9);
-    print(l);
-    std::cout << count_of_elements(l) << std::endl;
-    std::cout << pop_index(l, 3) << std::endl;
-    print(l);
-    //проверка для пользовательского типа
-    Lab_8 val1{};
-    Lab_8 val2{};
-    Lab_8 val3{};
-    Lab_8 val4{};//структуры,которые добавляются в список
-    val1.x = 1.5;
-    val1.y = 2.5;
-    val1.z = 3.5;
-    val2.x = 8.0;
-    val2.y=1.0;
-    val2.z = 3.7;
-    val3.x = 5.5;
-    val3.y = 6.4;
-    val3.z = 7.8;
-    val4.x = 8.2;
-    val4.y = 3.1;
-    val4.z = 7.6;
-    List<Lab_8> l1{};
-    constructor_List(l1);
-    destructor_List(l1);
-    push_begin(l1, val1);
-    push_back(l1, val2);
-    push_begin(l1, val3);
-    print(l1);
-    std::cout << find_pos(l1, val1) << std::endl;
-    std::cout << find_value(l1, 36) << std::endl;
-    std::cout << count_of_elements(l1) << std::endl;
-    insert_index(l1, val4, 57);
-    print(l1);
-    std::cout << pop_back(l1);
-    std::cout << pop_begin(l1);
-    print(l1);
-    return 0;
+    auto* ptr = new List_above_Student<T>;
+    ptr->value = data;
+    ptr->next = z->next;
+    ptr->previos = z;
+    ptr->next->previos = ptr;
+    ptr->previos->next = ptr;
+    list.size++;
+}
+template<typename T>
+T pop_first(List_of_group<T>& list)
+{
+    T data;
+    if (list.first != nullptr)
+    {
+        List_above_Student<T>* z = list.first;
+        list.first->previos->next = list.first->next;
+        list.first = list.first->next;
+        list.first->previos = z->previos;
+        data = z->value;
+        delete z;
+        list.size--;
+    }
+    return data;
+}
+template<typename T>
+T pop_end(List_of_group<T>& list)
+{
+    T data;
+    if (list.first != nullptr)
+    {
+        List_above_Student<T>* z = list.first->previos;
+        list.first->previos = list.first->previos->previos;
+        list.first->previos->next = list.first;
+        data = z->value;
+        delete z;
+        list.size--;
+    }
+    return data;
+}
+template <typename T>
+T get(List_of_group<T>& list, int index)
+{
+    T data;
+    List_above_Student<T>* ptr = list.first;
+    for (int i = 0; i < index; ++i)
+    {
+        ptr = ptr->next;
+    }
+    if (ptr != nullptr)
+    {
+        ptr->next->previos = ptr->previos;
+        ptr->previos->next = ptr->next;
+        data = ptr->value;
+        delete ptr;
+        list.size--;
+    }
+    return data;
+}
+template <typename T>
+T get_by_pointer(List_of_group<T>& list, List_above_Student<T>* a)
+{
+    T data;
+    List_above_Student<T>* ptr;
+    if (a == list.first)
+    {
+        a = list.first->next;
+    }
+    if (a != nullptr)
+    {
+        ptr = a;
+        ptr->next->previos = ptr->previos;
+        ptr->previos->next = ptr->next;
+        data = ptr->value;
+        delete ptr;
+        list.size--;
+    }
+    return data;
+}
+
+template <typename T>
+T get_by_index(List_of_group<T>& list, int index)
+{
+    T data;
+    List_above_Student<T>* ptr = list.first;
+    if (ptr != nullptr)
+    {
+        for (int i = 0; i < index; ++i)
+        {
+            ptr = ptr->next;
+        }
+        data = ptr->value;
+        std::cout << data << std::endl;
+    }
+    return data;
+}
+int main() {
+    List_of_group<int> group{};
+    constructor(group);
+    destructor(group);
+    size(group);
+    push_front(group, 5);
+    push_back(group, 3);
+    int index = 3;
+    insert_index(group, 3, index);
+    print(group);
+    insert_pointer(group,4,group.first->next->next);
+    insert_index(group,13,14);
+    get(group,index);
+    get_by_index(group,2);
+    get_by_pointer(group,group.first);
+    pop_end(group);
+    pop_first(group);
 }
