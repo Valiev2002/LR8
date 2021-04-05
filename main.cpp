@@ -1,23 +1,26 @@
 #include <iostream>
 template <class T>
-struct List_above_Student{
-List_above_Student<T>*previos;
-List_above_Student<T>*next;
+struct Node{
+Node<T>*previos;
+Node<T>*next;
 T value;
 };
 template<class T>
-struct List_of_group{
-    List_above_Student<T>*first;
+struct Circle{
+    Node<T>*first;
+    Node<T>*last;
     int size;
 };
 template<class T>
-void constructor(List_of_group<T>&list)
+void constructor(Circle<T>&list)
 {
     list.size=0;
     list.first=nullptr;
+    list.last=nullptr;
+
 }
 template<class T>
-void destructor(List_of_group<T>&list){
+void destructor(Circle<T>&list){
     for (int i = 1; i < list.size; i++)
     {
         list.first = list.first->next;
@@ -28,23 +31,25 @@ void destructor(List_of_group<T>&list){
     list.size = 0;
 }
 template<typename T>
-int size(List_of_group<T>& list)
+int size(Circle<T>& list)
 {
     return list.size;
 }
 template <class T>
-void push_front(List_of_group<T>&list,T value){
-    auto*ptr = new List_above_Student<T>;
-    ptr->value = value;
+
+void push_front(Circle<T>&list,T value){
+    auto*ptr = new Node<T>;
+    ptr->value = value;//связываем
     if (list.first == nullptr)
     {
-        list.first = ptr;
+        list.first = ptr;//связка с самим с собой
+        list.last=ptr;//связка с последним потому что первый последний связаны
         ptr->next = ptr;
         ptr->previos = ptr;
     }
     else
     {
-        list.first->previos->next = ptr;
+        list.first->previos->next = ptr;//list first сразу после птр
         ptr->previos = list.first->previos;
         list.first->previos = ptr;
         ptr->next = list.first;
@@ -53,9 +58,9 @@ void push_front(List_of_group<T>&list,T value){
     list.size++;
 }
 template<typename T>
-void push_back(List_of_group<T>&list,T value)
-{
-    auto*ptr = new List_above_Student<T>;
+void push_back(Circle <T> &list, T value) {
+
+    auto*ptr = new Node<T>;
     ptr->value = value;
     if (list.first == nullptr)
     {
@@ -72,25 +77,38 @@ void push_back(List_of_group<T>&list,T value)
     }
     list.size++;
 }
+
 template <typename T>
-void insert_index(List_of_group<T>& list, T data, int index)
+void insert_index(Circle<T>& list, T data, int index)
 {
-    auto* ptr = new List_above_Student<T>;
-    ptr->next = list.first;
-    ptr->value = data;
-    for (int i = 0; i < index; ++i)
-    {
-        ptr->next = ptr->next->next;
+    //если инлекс 0 вызывавем пущ фронт
+    //если индекс равен размеру то буш бэк
+    //в ином случае
+        int count = 0;
+        if (index == 0)
+            push_front(list, data);
+        else if (index == list.size)
+            push_back(list, data);
+        else {
+            list.size++;
+            Node<T>* ptr = list.first;
+            while (count != index - 1)
+            {
+                ptr = ptr -> next;
+                count ++;
+            }
+            auto element = new Node<T>;
+            element->value = data;
+            element->previos = ptr;
+            ptr->next->previos = element;
+            element->next = ptr->next;
+            ptr->next = element;
+        }
     }
-    ptr->previos = ptr->next->previos;
-    ptr->next->previos = ptr;
-    ptr->previos->next = ptr;
-    list.size++;
-}
 template <typename T>
-void print(List_of_group<T>& list)
+void print(Circle<T>& list)
 {
-    List_above_Student<T>* a = list.first;
+    Node<T>* a = list.first;
     for (int i = 0; i < list.size; ++i)
     {
         std::cout << a->value << ' ';
@@ -99,9 +117,9 @@ void print(List_of_group<T>& list)
 }
 template <typename T>
 void insert_pointer
-        (List_of_group<T>& list, T data, List_above_Student<T>* z)
+        (Circle<T>& list, T data, Node<T>* z)
 {
-    auto* ptr = new List_above_Student<T>;
+    auto* ptr = new Node<T>;
     ptr->value = data;
     ptr->next = z->next;
     ptr->previos = z;
@@ -110,107 +128,103 @@ void insert_pointer
     list.size++;
 }
 template<typename T>
-T pop_first(List_of_group<T>& list)
+T pop_first(Node<T>& list)//УСЛОВИЕ
 {
-    T data;
-    if (list.first != nullptr)
-    {
-        List_above_Student<T>* z = list.first;
-        list.first->previos->next = list.first->next;
-        list.first = list.first->next;
-        list.first->previos = z->previos;
-        data = z->value;
-        delete z;
-        list.size--;
+    if (list.size == 0) {
+        std::cout<<"Circle is empty"<<std::endl;
+        T exit;
+        return exit;
     }
-    return data;
+    if (list.first != nullptr) {
+        //присваиваем
+        Node<T> *z = list.first;
+        Node<T> *y = list.first->next;
+        T data = z->value;//запоминаем значение в тип переменной,потому что потом его вернуть
+        y->previos=list.last;
+        list.last->next=y;
+        delete z;
+        list.first=y;
+        return data;
+    }
 }
 template<typename T>
-T pop_end(List_of_group<T>& list)
-{
-    T data;
-    if (list.first != nullptr)
+T pop_end(Circle<T>& list) {
+    if (list.size == 0) {
+        std::cout << "Circle is empty" << std::endl;
+        T exit;
+        return exit;
+    }
+    else
     {
-        List_above_Student<T>* z = list.first->previos;
+        list.first=list.first;//begin
+        Node<T> *z = list.first->previos;
         list.first->previos = list.first->previos->previos;
-        list.first->previos->next = list.first;
-        data = z->value;
+        T data = z->value;
         delete z;
-        list.size--;
+        return data;
     }
-    return data;
 }
-template <typename T>
-T get(List_of_group<T>& list, int index)
-{
-    T data;
-    List_above_Student<T>* ptr = list.first;
-    for (int i = 0; i < index; ++i)
-    {
-        ptr = ptr->next;
-    }
-    if (ptr != nullptr)
-    {
-        ptr->next->previos = ptr->previos;
-        ptr->previos->next = ptr->next;
-        data = ptr->value;
-        delete ptr;
-        list.size--;
-    }
-    return data;
-}
-template <typename T>
-T get_by_pointer(List_of_group<T>& list, List_above_Student<T>* a)
-{
-    T data;
-    List_above_Student<T>* ptr;
-    if (a == list.first)
-    {
-        a = list.first->next;
-    }
-    if (a != nullptr)
-    {
-        ptr = a;
-        ptr->next->previos = ptr->previos;
-        ptr->previos->next = ptr->next;
-        data = ptr->value;
-        delete ptr;
-        list.size--;
-    }
-    return data;
-}
-
-template <typename T>
-T get_by_index(List_of_group<T>& list, int index)
-{
-    T data;
-    List_above_Student<T>* ptr = list.first;
-    if (ptr != nullptr)
-    {
-        for (int i = 0; i < index; ++i)
-        {
+    template<typename T>
+    T get(Circle<T> &list, int index) {
+        T data;
+        Node<T> *ptr = list.first;
+        for (int i = 0; i < index; ++i) {
             ptr = ptr->next;
         }
-        data = ptr->value;
-        std::cout << data << std::endl;
+        {
+            ptr->next->previos = ptr->previos;
+            ptr->previos->next = ptr->next;
+            data = ptr->value;
+            delete ptr;
+            list.size--;
+        }
+        return data;
     }
-    return data;
-}
-int main() {
-    List_of_group<int> group{};
-    constructor(group);
-    destructor(group);
-    size(group);
-    push_front(group, 5);
-    push_back(group, 3);
-    int index = 3;
-    insert_index(group, 3, index);
-    print(group);
-    insert_pointer(group,4,group.first->next->next);
-    insert_index(group,13,14);
-    get(group,index);
-    get_by_index(group,2);
-    get_by_pointer(group,group.first);
-    pop_end(group);
-    pop_first(group);
-}
+    template<typename T>
+    T get_by_pointer(Circle<T> &list, Node<T> *a) {
+        T data;
+        Node<T> *ptr;
+        if (a == list.first) {
+            a = list.first->next;
+        }
+        {
+            ptr = a;
+            ptr->next->previos = ptr->previos;
+            ptr->previos->next = ptr->next;
+            data = ptr->value;
+            delete ptr;
+            list.size--;
+        }
+        return data;
+    }
+    template<typename T>
+    T get_by_index(Circle<T> &list, int index) {
+        T data = 0;
+        Node<T> *ptr = list.first;
+        if (ptr != nullptr) {
+            for (int i = 0; i < index; ++i) {
+                ptr = ptr->next;
+            }
+            data = ptr->value;
+            std::cout << data << std::endl;
+        }
+        return data;
+    }
+    int main() {
+        Circle<int> group{};
+        constructor(group);
+        destructor(group);
+     std::cout<<"The size of the list is: "<<size(group)<<std::endl;
+        push_front(group, 5);
+        push_back(group, 3);
+        int index = 3;
+        insert_index(group, 3, index);
+        print(group);
+        insert_pointer(group, 4, group.first->next->next);
+        insert_index(group, 13, 14);
+        get(group, index);
+        get_by_index(group, 2);
+        get_by_pointer(group, group.first);
+        pop_end(group);
+        return 0;
+    }
