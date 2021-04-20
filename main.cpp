@@ -58,13 +58,12 @@ void push_front(Circle<T>&list,T value){
     }
     else
     {
-        list.first->previos->next = ptr;//list first сразу после птр
-        ptr->previos = list.first->previos;
-        list.first->previos = ptr;
-        ptr->next = list.first;
-        list.first = ptr;
+        ptr->next=list;
+        list.begin->previos=ptr;
+        ptr->previos=list.end;
+        list.end->next=ptr;
+        list.begin=ptr;
     }
-    list.size++;
 }
 template<typename T>
 void push_back(Circle <T> &list, T value) {
