@@ -58,7 +58,7 @@ void push_front(Circle<T>&list,T value){
     }
     else
     {
-        ptr->next=list;
+        ptr->next=list.begin;
         list.begin->previos=ptr;
         ptr->previos=list.end;
         list.end->next=ptr;
