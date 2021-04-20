@@ -1,4 +1,15 @@
-#include <iostream>
+    #include <iostream>
+    struct Student {
+        std::string fio;
+        char gender;
+        int age;
+    };
+    template <typename T>
+    bool operator!=(T first, T second) {
+        if(first.fio == second.fio) {
+            if ((first.gender == second.gender) && (first.age == second.age));
+        }
+    }
 template <class T>
 struct Node{
 Node<T>*previos;
@@ -17,7 +28,6 @@ void constructor(Circle<T>&list)
     list.size=0;
     list.first=nullptr;
     list.last=nullptr;
-
 }
 template<class T>
 void destructor(Circle<T>&list){
@@ -36,7 +46,6 @@ int size(Circle<T>& list)
     return list.size;
 }
 template <class T>
-
 void push_front(Circle<T>&list,T value){
     auto*ptr = new Node<T>;
     ptr->value = value;//связываем
@@ -59,7 +68,6 @@ void push_front(Circle<T>&list,T value){
 }
 template<typename T>
 void push_back(Circle <T> &list, T value) {
-
     auto*ptr = new Node<T>;
     ptr->value = value;
     if (list.first == nullptr)
@@ -77,7 +85,6 @@ void push_back(Circle <T> &list, T value) {
     }
     list.size++;
 }
-
 template <typename T>
 void insert_index(Circle<T>& list, T data, int index)
 {
@@ -105,6 +112,10 @@ void insert_index(Circle<T>& list, T data, int index)
             ptr->next = element;
         }
     }
+    std::ostream& operator << (std::ostream& output,const Student& st) {
+        output << "Full name: " << st.fio << "\nGender: " << st.gender << "\nAge: "<< st.age <<std::endl << std::endl;
+        return output;
+    }
 template <typename T>
 void print(Circle<T>& list)
 {
@@ -117,7 +128,7 @@ void print(Circle<T>& list)
 }
 template <typename T>
 void insert_pointer
-        (Circle<T>& list, T data, Node<T>* z)
+        (Circle<T>& list, T data, Node<T>* z)//указатель куда я вставляю
 {
     auto* ptr = new Node<T>;
     ptr->value = data;
@@ -226,5 +237,31 @@ T pop_end(Circle<T>& list) {
         get_by_index(group, 2);
         get_by_pointer(group, group.first);
         pop_end(group);
+        Student stud1 = {"Valiev  Vali Samedovich",'m', 20};
+        Student stud2 = {"Jordan Michael Dmitrievich",'m', 55};
+        Student stud3 = { "Grr Mmmm Zzzzz",'m', 35};
+        Student stud4 = {"Yasenko Sofia Dmitrievna", 'f', 19};
+        Student stud5 = {"Dratuti Misha Valievich",'m', 47};
+        Circle<Student> circle1;
+        constructor (circle1);
+        push_front(circle1, stud1);
+        push_front(circle1, stud2);
+        std::cout << "Circle of citizens: ";
+        std::cout << std::endl;
+        print(circle1);
+        push_back(circle1, stud3);
+        std::cout << "Circle with pushed person to the end: " << std::endl;
+        print(circle1);
+        insert_index(circle1, stud4,2);
+        std::cout << "Circle with pushed person to index 2: " << std::endl;
+        print(circle1);
+        Node<Student>* people = circle1.last->next->next;
+        std::cout << "Circle with pushed person number 4 using pointer at the second element: " << std::endl;
+        insert_pointer(circle1,stud5,people);
+        print(circle1);
+        std::cout << "Size of circle: " << size(circle1) << std::endl;
+        std::cout << "Popped person from the beginning: " << std::endl;
+        print(circle1);
+       std::cout << std::endl;
         return 0;
     }
